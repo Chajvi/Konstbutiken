@@ -216,8 +216,8 @@ public class HuvudMeny
         {
             total += produkt.Pris * antal;
         }
-
-        Console.WriteLine($"Totalbelopp: {total} kr\n");
+        decimal skatt = total * 0.25m;
+        Console.WriteLine($"Totalbelopp: {total} kr varav {skatt} är momsen\n");
         Console.WriteLine("Vill du fortsätta med beställningen? JA/NEJ");
         string svar = Console.ReadLine()?.ToUpper();
 
@@ -284,6 +284,14 @@ public class HuvudMeny
                 };
 
                 context.Beställningar.Add(beställning);
+                foreach (var (produkt, antal) in _varukorg)
+                {
+                    var dbProdukt = await context.Produkter.FindAsync(produkt.Id);
+                    if (dbProdukt != null && dbProdukt.LagerSaldo >= antal)
+                    {
+                        dbProdukt.LagerSaldo -= antal;
+                    }
+                }
                 await context.SaveChangesAsync();
 
                 Console.WriteLine($"\nBeställningen har skickats och kommer till dig om {valdLeverans.Leveranstid}");

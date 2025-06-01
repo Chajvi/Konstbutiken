@@ -72,7 +72,7 @@ internal class ShopMeny
         Console.WriteLine("PRODUKTINFO\n");
         Console.WriteLine($"Namn: {produkt.Namn}");
         Console.WriteLine($"Pris: {produkt.Pris} kr");
-        Console.WriteLine($"Kategori: {produkt.Kategori}");
+        Console.WriteLine($"Kategori: {produkt.KategoriId}");
         Console.WriteLine($"Beskrivning: {produkt.Beskrivning}");
         Console.WriteLine($"Lagersaldo: {produkt.LagerSaldo}");
 

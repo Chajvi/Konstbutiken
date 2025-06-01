@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using Webbshoppen.Data;
@@ -23,6 +24,7 @@ internal class AdminMeny
             Console.WriteLine("[4] Hantera kunder");
             Console.WriteLine("[5] Se tidigare beställningar");
             Console.WriteLine("[6] Ändra speciella produkter");
+            Console.WriteLine("[7] Se betalningsstatestik"); //DENNA ÄR NY SEDAN REDOVISNINGEN!!
             Console.WriteLine("[0] Logga ut");
             Console.Write("Val: ");
             string val = Console.ReadLine();
@@ -47,6 +49,9 @@ internal class AdminMeny
                 case "6":
                     await SpecialProdukter();
                     break;
+                case "7":
+                    await BetalningsStatestik(); //DENNA ÄR NY SEDAN REDOVCISNINGEN!!
+                    break;
                 case "0":
                     igång = false;
                     break;
@@ -68,18 +73,34 @@ internal class AdminMeny
         string namn = Console.ReadLine();
         Console.WriteLine("Pris: ");
         decimal pris = decimal.Parse(Console.ReadLine());
-        Console.WriteLine("Kategori: ");
-        string kategori = Console.ReadLine();
+        Console.WriteLine("Beskrivning: ");
+        string beskrivning = Console.ReadLine();
+        
+        //Nytt sedan redovisning
+        var kategorier = await context.Kategorier.ToListAsync();
+        Console.WriteLine("Välj en kategori:");
+        foreach (var kategori in kategorier)
+        {
+            Console.WriteLine($"[{kategori.Id}] {kategori.Namn}");
+        }
+        Console.WriteLine("Ange id:t för kategorin: ");
+        int kategoriId = int.Parse(Console.ReadLine());
+        //Fram tills här.
+        //Console.WriteLine("Kategori: ");      Gammal kod
+        //string kategori = Console.ReadLine();     Gammal kod
         Console.WriteLine("Leverantör: ");
         string leverantör = Console.ReadLine();
         Console.WriteLine("Lagersaldo: ");
         int lagersaldo = int.Parse(Console.ReadLine());
 
+        
+
         var produkt = new Produkt
         {
             Namn = namn,
             Pris = pris,
-            Kategori = kategori,
+            Beskrivning = beskrivning,
+            KategoriId = kategoriId,
             Leverantör = leverantör,
             LagerSaldo = lagersaldo
         };
@@ -121,9 +142,14 @@ internal class AdminMeny
         Console.Write($"Ny beskrivning: ({produkt.Beskrivning})");
         string beskrivning = Console.ReadLine();
         if (!string.IsNullOrWhiteSpace(beskrivning)) produkt.Beskrivning = beskrivning;
-        Console.Write($"Ny kategori: ({produkt.Kategori})");
-        string kategori = Console.ReadLine();
-        if (!string.IsNullOrWhiteSpace(kategori)) produkt.Kategori = kategori;
+        //Nytt:
+        Console.Write($"Ny kategori: (id): ({produkt.KategoriId})");
+        string kategoriInput = Console.ReadLine();
+        if (int.TryParse(kategoriInput, out int nyKategoriId))
+        {
+            produkt.KategoriId = nyKategoriId;
+        }
+        //Här slutar det nya
         Console.Write($"Ny leverantör: ({produkt.Leverantör})");
         string leverantör = Console.ReadLine();
         if (!string.IsNullOrWhiteSpace(leverantör)) produkt.Leverantör = leverantör;
@@ -186,8 +212,28 @@ internal class AdminMeny
             return;
         }
 
-        //Om jag hinner, lägg även till här att man kan lämna tomt för att behålla det gamla värdet
+        Console.Clear();
+        Console.WriteLine("REDIGERA KUNDUPPGIFTER: ");
+        Console.Write($"Namn ({kund.Namn}): ");
+        string namn = Console.ReadLine();
+        if (!string.IsNullOrWhiteSpace(namn)) kund.Namn = namn;
+
+        Console.Write($"Email ({kund.Email}): ");
+        string email = Console.ReadLine();
+        if (!string.IsNullOrWhiteSpace(email)) kund.Email = email;
+
+        Console.Write($"Adress ({kund.Adress}): ");
+        string adress = Console.ReadLine();
+        if (!string.IsNullOrWhiteSpace(adress)) kund.Adress = adress;
+
+        await context.SaveChangesAsync();
+
+        Console.WriteLine("\nKunduppgifterna har uppdaterats.");
+        Console.WriteLine("Tryck på valfri tangent för att fortsätta.");
+        Console.ReadKey();
     }
+        
+    
 
     private async Task BeställningsHistorik()
     {
@@ -209,6 +255,24 @@ internal class AdminMeny
             .Include (b => b.LeveransAlternativ)
             .Include (b => b.BetalningsAlternativ)
             .ToListAsync();
+
+        Console.Clear();
+        if (beställningar.Count == 0)
+        {
+            Console.WriteLine("Det verkar inte som att kunden har gjort några beställningar än.");
+        }
+
+        else
+        {
+            Console.WriteLine("Tidigare beställningar: \n");
+            foreach (var b in beställningar)
+            {
+                Console.WriteLine($" - ID: {b.Id} | Datum: {b.Datum:yyyy-MM-dd} | Totalt: {b.TotalBelopp} kr");
+            }
+        }
+
+        Console.WriteLine("\nTryck på valfri tangent för att fortsätta.");
+        Console.ReadKey();
            
     }
 
@@ -256,6 +320,36 @@ internal class AdminMeny
             Console.WriteLine("\n Tryck på valfri tangent för att frotsätta.");
             Console.ReadKey();
         }
+    }
+
+    private async Task BetalningsStatestik() //DENNA ÄR NY SEDAN REDOVISNINGEN!!
+    {
+        using var context = new Databas();
+        Console.Clear();
+        Console.WriteLine("Statestik för olika betalningssätt\n");
+        var samladData = await context.Beställningar
+            .GroupBy(b => b.BetalningsAlternativ.Namn)
+            .Select(g => new
+            {
+                Namn = g.Key,
+                Antal = g.Count()
+            })
+            .OrderByDescending(g => g.Antal)
+            .ToListAsync();
+        if (!samladData.Any())
+        {
+            Console.WriteLine("Tyvärr hittades inga beställningar");
+        }
+        else
+        {
+            foreach (var post in samladData)
+            {
+                Console.WriteLine($"Betalningsalternativ: {post.Namn} - {post.Antal} st");
+            }
+        }
+
+        Console.WriteLine("\nTryck på valfri tangent för att fortsätta.");
+        Console.ReadKey();
     }
 
     }

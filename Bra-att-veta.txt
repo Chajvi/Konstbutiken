@@ -1,0 +1,15 @@
+﻿För att logga in som admin:
+Mail: admin@mail.se
+Lösenord: admin123
+
+Jag tyckte detta var ett intressant projekt som dessutom var större än vad jag trodde.
+Något jag tar med mig från detta arbete är att inte lägga för mycket tid på att strukturera och
+skriva om saker i koden som inte spelar någon roll för funktion. Jag har under projektets gång ändrat
+en del visuella saker, bytt namn på metoder och rensat kommentarer som jag inte tyckte passade in.
+I efterhand så hade det sparat mig en del tid att skippa detta och istället jobba mer på att göra mitt ER-diagram
+snyggare samt fokusera mer på vg frågorna. Men man lär sig så länge man lever och jag är ändå nöjd
+med min shop och att hamna på godkänt nivån.
+
+Även om vi har arbetat med databaser tidigare så tyckte jag det var bra att uppdatera sig.
+Jag tar gärna emot tips på hur koden kan göras ännu bättre och om jag har några ovanor som
+kan vara bra att arbeta bort innan jag kommer ut på arbetsmarknaden.

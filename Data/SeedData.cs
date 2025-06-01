@@ -11,7 +11,7 @@ internal class SeedData
 {
     public static async Task SeedAsync(Databas context)
     {
-        bool ändrat = false;
+        
         //Mitt inventarie
         if (!context.Kategorier.Any())
         {
@@ -20,13 +20,14 @@ internal class SeedData
             var färgKategori = new Kategori { Namn = "Färger" };
 
             context.Kategorier.AddRange(canvasKategori, penselKategori, färgKategori);
+            await context.SaveChangesAsync();
             context.Produkter.AddRange(
                 new Produkt
                 {
                     Namn = "Tygcanvas",
                     Beskrivning = "Canvasduk i linne, 100 x 80 cm",
                     Pris = 599.98m,
-                    Kategori = "Canvasdukar",
+                    KategoriId = canvasKategori.Id,
                     LagerSaldo = 15,
                     Leverantör = "TavlorAB"
                 },
@@ -35,7 +36,7 @@ internal class SeedData
                     Namn = "Bomullscanvas",
                     Beskrivning = "Canvasduk i bomull, 50 x 50 cm",
                     Pris = 259.59m,
-                    Kategori = "Canvasdukar",
+                    KategoriId = canvasKategori.Id,
                     LagerSaldo = 12,
                     Leverantör = "TavlorAB"
                 },
@@ -44,7 +45,7 @@ internal class SeedData
                     Namn = "Startset Penslar",
                     Beskrivning = "Ett nybörjarset med penslar, 8 stycken i olika storlekar av syntetiskt material",
                     Pris = 359.99m,
-                    Kategori = "Penslar",
+                    KategoriId = penselKategori.Id,
                     LagerSaldo = 5,
                     Leverantör = "Penselmästarna"
                 },
@@ -53,7 +54,7 @@ internal class SeedData
                     Namn = "Finess Pensel",
                     Beskrivning = "Vår finaste pensel gjord av hästhår",
                     Pris = 459.98m,
-                    Kategori = "Penslar",
+                    KategoriId = penselKategori.Id,
                     LagerSaldo = 3,
                     Leverantör = "Penselmästarna"
                 },
@@ -62,7 +63,7 @@ internal class SeedData
                     Namn = "Akvarellpalett",
                     Beskrivning = "En enkelt nybörjarpalett med 8 akvarellfärger",
                     Pris = 199.99m,
-                    Kategori = "Färger",
+                    KategoriId = färgKategori.Id,
                     LagerSaldo = 24,
                     Leverantör = "PaintPals"
                 },
@@ -71,12 +72,12 @@ internal class SeedData
                     Namn = "Akryltuber",
                     Beskrivning = "Ett set med akrylfärger på tub. Pastellfärger i tio olika nyanser",
                     Pris = 359.99m,
-                    Kategori = "Färger",
+                    KategoriId = färgKategori.Id,
                     LagerSaldo = 8,
                     Leverantör = "PaintPals"
                 });
 
-            ändrat = true;
+            
         }
 
         //Leveransalternativen för kunderna
@@ -107,7 +108,9 @@ internal class SeedData
             Console.WriteLine("En basadmin är skapad");
         }
 
-
+        await context.SaveChangesAsync();
 
     }
+
+
 }
